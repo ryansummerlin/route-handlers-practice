@@ -8,6 +8,10 @@ function getNewDogId() {
   return newDogId;
 }
 
+function parse(url) {
+  return url.split('/');
+}
+
 const server = http.createServer((req, res) => {
   console.log(`${req.method} ${req.url}`);
 
@@ -33,7 +37,48 @@ const server = http.createServer((req, res) => {
     }
     // Do not edit above this line
 
-    // define route handlers here
+    if (req.method === 'GET' && req.url === '/') {
+      res.status = 200;
+      res.setHeader('Content-Type', 'text/plain');
+      return res.end('Dog Club');
+    }
+    if (req.method === 'GET' && req.url === '/dogs') {
+      res.status = 200;
+      res.setHeader('Content-Type', 'text/plain');
+      return res.end('Dogs index');
+    }
+    if (req.method === 'GET' && req.url.startsWith('/dogs/') && parse(req.url).length === 3) {
+      let dogID = parse(req.url)[2];
+      if (!isNaN(dogID)) {
+        res.status = 200;
+        res.setHeader('Content-Type', 'text/plain');
+        return res.end(`Dog details for dog ${dogID}`);
+      }
+    }
+    if (req.method === 'GET' && req.url === '/dogs/new') {
+      res.status = 200;
+      res.setHeader('Content-Type', 'text/plain');
+      return res.end('Dog create form page');
+    }
+    if (req.method === 'POST' && req.url === '/dogs') {
+      res.status = 302;
+      let newDogID = getNewDogId();
+      res.setHeader('Location', `/dogs/${newDogID}`);
+      return res.end();
+    }
+    if (req.method === 'POST' && req.url.startsWith('/dogs/') && parse(req.url).length === 3) {
+      let dogID = parse(req.url)[2];
+      res.status = 302;
+      console.log('test');
+      res.setHeader('Location', `/dogs/${dogID}`);
+      return res.end();
+    }
+    if (req.method === 'GET' && req.url.startsWith('/dogs/') && parse(req.url)[3] === 'edit') {
+      let dogID = parse(req.url)[2];
+      res.status = 200;
+      res.setHeader('Content-Type', 'text/plain');
+      return res.end(`Dog edit form page for dog ${dogID}`);
+    }
 
     // Do not edit below this line
     // Return a 404 response when there is no matching route handler
